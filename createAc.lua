@@ -24,7 +24,6 @@ local AcMain0 = function()
     dgsSetProperty(AcId2, 'placeHolderFont', 'default-bold')
     dgsEditSetPlaceHolder(AcId3, ' Подтвердите ваш пароль:')
     dgsSetProperty(AcId3, 'placeHolderFont', 'default-bold')
-
     dgss1 = function()
         local text = dgsGetText(AcId1)
         for i = 1, #zapret do
@@ -33,8 +32,6 @@ local AcMain0 = function()
             end
         end
     end
-    addEventHandler('onDgsTextChange', AcId1,dgss1)
-
     dgss2 = function()
         local text = dgsGetText(AcId2)
         for i = 1, #zapret do
@@ -43,8 +40,6 @@ local AcMain0 = function()
             end
         end
     end
-    addEventHandler('onDgsTextChange', AcId2,dgss2)
-
     dgss3 = function()
         local text = dgsGetText(AcId3)
         for i = 1, #zapret do
@@ -53,6 +48,8 @@ local AcMain0 = function()
             end
         end
     end
+    addEventHandler('onDgsTextChange', AcId1,dgss1)
+    addEventHandler('onDgsTextChange', AcId2,dgss2)
     addEventHandler('onDgsTextChange', AcId3,dgss3)
 end
 local AcMain1 = function ()
@@ -106,14 +103,15 @@ local AcfullDestroy = function ()
     if isElement(Tatle2) then
         destroyElement(Tatle2)
     end
-
-
+    if isElement(theChuka) then
+    	destroyElement(theChuka)
+    end
     showCursor(false)
 end
 addEvent( "destLoginPanel", true )
 addEventHandler( "destLoginPanel", localPlayer, AcfullDestroy )
 
-addEventHandler("onDgsMouseClickUp", getRootElement(), function(button)  -- Нажатие на кнопки
+addEventHandler("onDgsMouseClickUp", getRootElement(), function(button)  -- Нажатие на кнопки (выбор пола)
     if source == Man then
         if button == "left" then
             -----------------------------
@@ -132,7 +130,6 @@ elseif source == Woman then
         dgsSetAlpha ( Woman, 0.5 )
         dgsSetAlpha ( Man, 1 )
         Genderas = "Woman"
-        -- createPed ( SWoman, 1771.7379150,-1973.568359,14.5558261)
         -----------------------------
     end
 end
@@ -160,13 +157,14 @@ addEventHandler( "onDgsMouseLeave", root, function(aX, aY,leftGUI)
     end
 end)
 
-addEventHandler("onDgsMouseClickUp", getRootElement(), function(button)  -- кнопка закрыть
+addEventHandler("onDgsMouseClickUp", getRootElement(), function(button)  -- кнопка назад
     if source == Otmena then
         if button == "left" then
             -----------------------------
             AcfullDestroy()
             showCursor(false)
             startLogInPanel()
+
             -----------------------------
         end
 end
@@ -187,7 +185,7 @@ end
 
 
 
-addEventHandler("onDgsMouseClickUp", getRootElement(), function(button)  -- кнопка закрыть
+addEventHandler("onDgsMouseClickUp", getRootElement(), function(button)  -- кнопка Завершения регистрации
     if source == Create then
         if button == "left" then
             -----------------------------

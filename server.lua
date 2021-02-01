@@ -18,7 +18,7 @@ local funCr = function ()
 end
 addEventHandler("onResourceStart",resourceRoot,funCr)
 
-teaDecodeBinary = function ( data, key )
+teaDecodeBinary = function ( data, key ) -- Временно недоступно
     return base64Decode( teaDecode( data, key ) )
 end
 
@@ -35,7 +35,15 @@ local funCreateAcc = function(theUser,username,password,Age,Name,SurName,Email,G
     dbExec(db, "INSERT INTO UserData (login,pass,Age,Name,SurName,Email,Gender) VALUES (?,?,?,?,?,?,?)",username,password,Age,Name,SurName,Email,Gender)
 end
 
-
+local checkAccountTable = function(data)
+    local q = dbQuery(conn, "SELECT * FROM UserData WHERE login=?",data)  -- поиск Аккаунта по логину true/false
+    local result = dbPoll(q,-1)
+    if #result == 0 then
+        return false
+    else
+        return true
+    end
+end
 
 -----------------------Рег\Логин--------------------------------------
 local prinSetData = function(theUser)
@@ -52,24 +60,21 @@ local prinSetData = function(theUser)
     end
 end
 
-
-
 registerPlayer = function (theUser,username,password,Age,Name,SurName,Email,Gender)
     if username == "" then return end
     if password == "" then return end
     local account = getAccount (username,password);
+
+    if checkAccountTable(username) == false then outputChatBox ( 'Логином, уже зарезервирован/занят', theUser, 255, 0, 0) return end
     if account then
         outputChatBox ( 'Данный логин уже используется', theUser, 255, 0, 0);
-        return false
     end
     if ( #getAccountsBySerial( getPlayerSerial( theUser ) ) > acLimit ) then
         outputChatBox ( 'Превышен лимит регистрации (Max Account - '..acLimit..')', theUser, 255, 0, 0);
-        return false
     end
     local accountAdded = addAccount(tostring(username),tostring(password));
     if not accountAdded then
         outputChatBox ( 'Логин или пароль введёт не верно', theUser, 255, 0, 0);
-        return false
     end
     logIn(theUser,accountAdded,password);
     setElementFrozen ( theUser, false )
@@ -82,13 +87,9 @@ registerPlayer = function (theUser,username,password,Age,Name,SurName,Email,Gend
     outputChatBox ( 'Вы успешно зарегестрировались на проекте '..servName..' ', theUser, 0xFFFFFFFF);
     outputChatBox ( 'Добро пожаловать на '..servName..', Желаем вам - приятной игры! ', theUser, 0xFFFFFFFF);
     triggerClientEvent( theUser, "destLoginPanel", theUser);
-    return true
 end
 addEvent("onRequestRegister",true)
 addEventHandler("onRequestRegister",getRootElement(),registerPlayer)
-
-
-
 
 PlayerLogin = function (theUs, username, password)
     if username == "" then
@@ -120,7 +121,6 @@ local onPlayerLogin = function()
         local result = dbPoll(q,-1)
         if result then
             for _,row in ipairs(result) do
-
                 if not(getElementData(player,"Name")) then
                     setElementData(player,"Name",row["Name"])
                 end
@@ -148,12 +148,6 @@ addEventHandler ("onPlayerLogin" , root, function()
     onPlayerLogin()
 end)
 
--- local skilss = function (ThePlayer)
---     local massa = getElementData(ThePlayer,"Name").."_"..getElementData(ThePlayer,"SurName").."_"..getElementData(ThePlayer,"Age").."_"..getElementData(ThePlayer,"Gender")
---     print(massa)
--- end
--- addCommandHandler ( "tt", skilss )
-
 addEventHandler ( "onPlayerCommand", root,
     function(cmd)
         if cmd == "logout"  then
@@ -161,7 +155,7 @@ addEventHandler ( "onPlayerCommand", root,
             triggerClientEvent( source, "startLogInPanel", source);
         end
         if cmd == "login" then
-        	cancelEvent()
+            cancelEvent()
         end
     end
 )
